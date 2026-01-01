@@ -1,0 +1,27 @@
+﻿services:
+  postgres:
+    image: postgres:18
+    container_name: postgres-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: orders_db
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: pass
+    ports:
+      - "5432:5432"
+
+  orders-service:
+    image: orders-service
+    build:
+      context: .
+      dockerfile: OrdersService/Dockerfile
+    depends_on:
+      - postgres
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: orders_db
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: pass
+    ports:
+      - "8080:8080"
