@@ -1,6 +1,8 @@
+using System.Text.Json;
+
 namespace Orchestrator;
 
 public interface ISagaRepository
 {
-    Task<Guid> Create();
+    Task<Guid> Create(JsonDocument payloadJson);
 }

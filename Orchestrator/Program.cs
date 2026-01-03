@@ -1,6 +1,8 @@
+using System.Threading.Channels;
 using Npgsql;
 using Orchestrator;
 
+const int maxChannelSize = 1000;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -18,6 +20,20 @@ var pgPort = Environment.GetEnvironmentVariable("POSTGRES_PORT");
 await using var dataSource = NpgsqlDataSource.Create($"HOST={pgHost};Username={pgUser};Password={pgPassword};Database={pgDbName};Port={pgPort};");
 builder.Services.AddSingleton(dataSource);
 builder.Services.AddScoped<ISagaRepository, PgSagaRepository>();
+builder.Services.AddHostedService<SagaWorker>();
+
+var sagaChannel = Channel.CreateBounded<Guid>(
+    new BoundedChannelOptions(maxChannelSize)
+    {
+        SingleReader = true,
+        SingleWriter = true,
+        AllowSynchronousContinuations = false,
+        FullMode = BoundedChannelFullMode.DropWrite
+    }
+);
+
+builder.Services.AddSingleton(sagaChannel.Reader);
+builder.Services.AddSingleton(sagaChannel.Writer);
 
 var app = builder.Build();
 

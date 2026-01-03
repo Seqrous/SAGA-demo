@@ -5,7 +5,8 @@ CREATE TABLE IF NOT EXISTS orchestrator.SagaLog (
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     status VARCHAR(32) NOT NULL,
-    current_step VARCHAR(32)
+    current_step VARCHAR(32),
+    payload JSON NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS orchestrator.SagaStep (
