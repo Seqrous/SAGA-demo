@@ -1,4 +1,5 @@
 using Npgsql;
+using Orchestrator;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,6 +17,7 @@ var pgPort = Environment.GetEnvironmentVariable("POSTGRES_PORT");
 
 await using var dataSource = NpgsqlDataSource.Create($"HOST={pgHost};Username={pgUser};Password={pgPassword};Database={pgDbName};Port={pgPort};");
 builder.Services.AddSingleton(dataSource);
+builder.Services.AddScoped<ISagaRepository, PgSagaRepository>();
 
 var app = builder.Build();
 
