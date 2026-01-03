@@ -4,12 +4,14 @@
     container_name: postgres-db
     restart: unless-stopped
     environment:
-      POSTGRES_DB: orders_db
+      POSTGRES_DB: saga-demo-db
       POSTGRES_USER: root
       POSTGRES_PASSWORD: pass
     ports:
       - "5432:5432"
-
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      
   orchestrator:
     image: orchestrator
     build:
@@ -18,9 +20,9 @@
     depends_on:
       - postgres
     environment:
-      POSTGRES_HOST: postgres
+      POSTGRES_HOST: localhost
       POSTGRES_PORT: 5432
-      POSTGRES_DB: orders_db
+      POSTGRES_DB: saga-demo-db
       POSTGRES_USER: root
       POSTGRES_PASSWORD: pass
     ports:
