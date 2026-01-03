@@ -1,19 +1,20 @@
 using Microsoft.AspNetCore.Mvc;
 using Npgsql;
 
-namespace OrdersService;
+namespace Orchestrator;
 
 [ApiController]
 [Route("[controller]")]
-public class OrderController(NpgsqlDataSource dataSource) : ControllerBase
+public class Controller(NpgsqlDataSource dataSource) : ControllerBase
 {
     [HttpPost]
-    public async Task<ActionResult> Create()
+    [Route("/start-saga")]
+    public async Task<ActionResult> StartSaga()
     {
         await using var connection = await dataSource.OpenConnectionAsync();
         await using var command = new NpgsqlCommand("SELECT 1", connection);
         await using var reader = await command.ExecuteReaderAsync();
-
+        
         if (!reader.HasRows)
             return NotFound();
         
