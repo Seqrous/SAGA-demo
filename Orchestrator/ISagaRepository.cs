@@ -4,5 +4,6 @@ namespace Orchestrator;
 
 public interface ISagaRepository
 {
-    Task<Guid> Create(JsonDocument payloadJson);
+    Task<Guid> StartSaga(JsonDocument payloadJson);
+    Task CreateSagaStepAndOutboxMessage(Guid sagaId, string stepName, JsonDocument payloadJson);
 }

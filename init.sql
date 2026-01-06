@@ -15,5 +15,17 @@ CREATE TABLE IF NOT EXISTS orchestrator.SagaStep (
     status VARCHAR(32) NOT NULL,
     idempotency_key UUID NOT NULL,
     created_at TIMESTAMP NOT NULL,
-    PRIMARY KEY (saga_id, step_name)
+    updated_at TIMESTAMP NOT NULL,
+    PRIMARY KEY (saga_id, step_name),
+    FOREIGN KEY (saga_id) REFERENCES orchestrator.SagaLog(saga_id)
 );
+
+CREATE TABLE IF NOT EXISTS orchestrator.SagaOutbox (
+    saga_id UUID NOT NULL,
+    step_name VARCHAR(32) NOT NULL,
+    payload JSON NOT NULL,
+    sent boolean NOT NULL,
+    created_at TIMESTAMP NOT NULL,
+    PRIMARY KEY (saga_id, step_name),
+    FOREIGN KEY (saga_id, step_name) REFERENCES orchestrator.SagaStep(saga_id, step_name)
+)

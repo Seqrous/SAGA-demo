@@ -16,7 +16,7 @@ public class Controller(
     public async Task<ActionResult> StartSaga()
     {
         var payload = await JsonDocument.ParseAsync(HttpContext.Request.Body);
-        var sagaId = await sagaRepository.Create(payload);
+        var sagaId = await sagaRepository.StartSaga(payload);
         
         if (!sagaChannelWriter.TryWrite(sagaId))
             Console.WriteLine("Queue full :(");
