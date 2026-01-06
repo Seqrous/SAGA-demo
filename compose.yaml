@@ -11,6 +11,13 @@
       - "5432:5432"
     volumes:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+  
+  rabbitmq:
+    image: rabbitmq:4.2.2-management
+    container_name: rabbitmq
+    ports:
+      - "9000:15672"
+      - "5672:5672"
       
   orchestrator:
     image: orchestrator
@@ -19,6 +26,7 @@
       dockerfile: Orchestrator/Dockerfile
     depends_on:
       - postgres
+      - rabbitmq
     environment:
       POSTGRES_HOST: postgres
       POSTGRES_PORT: 5432
