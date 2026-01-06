@@ -21,6 +21,7 @@ await using var dataSource = NpgsqlDataSource.Create($"HOST={pgHost};Username={p
 builder.Services.AddSingleton(dataSource);
 builder.Services.AddScoped<ISagaRepository, PgSagaRepository>();
 builder.Services.AddHostedService<SagaWorker>();
+builder.Services.AddSingleton(TimeProvider.System);
 
 var sagaChannel = Channel.CreateBounded<Guid>(
     new BoundedChannelOptions(maxChannelSize)
