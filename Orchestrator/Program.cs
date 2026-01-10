@@ -1,4 +1,5 @@
 using System.Threading.Channels;
+using EasyNetQ;
 using Npgsql;
 using Orchestrator;
 
@@ -11,14 +12,8 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddControllers();
 
-var pgHost = Environment.GetEnvironmentVariable("POSTGRES_HOST");
-var pgDbName = Environment.GetEnvironmentVariable("POSTGRES_DB");
-var pgUser = Environment.GetEnvironmentVariable("POSTGRES_USER");
-var pgPassword = Environment.GetEnvironmentVariable("POSTGRES_PASSWORD");
-var pgPort = Environment.GetEnvironmentVariable("POSTGRES_PORT");
-
-await using var dataSource = NpgsqlDataSource.Create($"HOST={pgHost};Username={pgUser};Password={pgPassword};Database={pgDbName};Port={pgPort};");
-builder.Services.AddSingleton(dataSource);
+RegisterPostgresConnection();
+RegisterRmqConnection();
 builder.Services.AddScoped<ISagaRepository, PgSagaRepository>();
 builder.Services.AddHostedService<SagaWorker>();
 builder.Services.AddSingleton(TimeProvider.System);
@@ -43,3 +38,29 @@ app.UseSwaggerUI();
 
 app.MapControllers();
 app.Run();
+return;
+
+void RegisterPostgresConnection()
+{
+    var host = Environment.GetEnvironmentVariable("POSTGRES_HOST");
+    var dbName = Environment.GetEnvironmentVariable("POSTGRES_DB");
+    var user = Environment.GetEnvironmentVariable("POSTGRES_USER");
+    var pass = Environment.GetEnvironmentVariable("POSTGRES_PASSWORD");
+    var port = Environment.GetEnvironmentVariable("POSTGRES_PORT");
+
+    var dataSource = NpgsqlDataSource.Create($"HOST={host};Username={user};Password={pass};Database={dbName};Port={port};");
+    builder.Services.AddSingleton(dataSource);
+}
+
+void RegisterRmqConnection()
+{
+    var host = Environment.GetEnvironmentVariable("RMQ_HOST");
+    var user = Environment.GetEnvironmentVariable("RMQ_USER");
+    var pass = Environment.GetEnvironmentVariable("RMQ_PASSWORD");
+    var port = Environment.GetEnvironmentVariable("RMQ_PORT");
+    var vhost = Environment.GetEnvironmentVariable("RMQ_VHOST");
+
+    builder.Services
+        .AddEasyNetQ($"host={host};virtualHost={vhost};username={user};password={pass};port={port}")
+        .UseSystemTextJson();
+}

@@ -33,5 +33,10 @@
       POSTGRES_DB: saga-demo-db
       POSTGRES_USER: root
       POSTGRES_PASSWORD: pass
+      RMQ_HOST: rabbitmq
+      RMQ_USER: guest
+      RMQ_PASSWORD: guest
+      RMQ_PORT: 5672
+      RMQ_VHOST: /
     ports:
       - "8080:8080"

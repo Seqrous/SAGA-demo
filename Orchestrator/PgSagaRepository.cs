@@ -75,4 +75,28 @@ public class PgSagaRepository(NpgsqlDataSource pgDataSource, TimeProvider timePr
             throw;
         }
     }
+
+    public async Task SetOutboxMessageSent(Guid sagaId, string stepName)
+    {
+        const string sql = """
+            UPDATE orchestrator.SagaOutbox
+            SET sent = true
+            WHERE saga_id = $1 AND step_name = $2
+        """;
+        
+        await using var connection = await pgDataSource.OpenConnectionAsync();
+        await using var command = new NpgsqlCommand(sql, connection);
+        command.Parameters.AddRange(new NpgsqlParameter[]
+        {
+            new() { Value = sagaId, NpgsqlDbType = NpgsqlDbType.Uuid },
+            new() { Value = stepName, NpgsqlDbType = NpgsqlDbType.Varchar },
+        });
+        
+        var affectedRows = await command.ExecuteNonQueryAsync();
+        switch (affectedRows)
+        {
+            case 0: throw new InvalidOperationException($"Now outbox row found for saga {sagaId}, step '{stepName}'");
+            case >1: throw new InvalidOperationException("Data integrity violation");
+        }
+    }
 }
