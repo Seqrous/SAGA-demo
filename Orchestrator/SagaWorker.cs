@@ -14,8 +14,7 @@ public class SagaWorker(
     {
         await foreach (var sagaId in sagaChannelReader.ReadAllAsync(stoppingToken))
         {
-            // TODO: read the saga payload from the DB
-            var payload = JsonDocument.Parse("\":)\"");
+            var payload = await sagaRepository.GetSagaInitPayload(sagaId);
             var stepName = "Order";
             
             await sagaRepository.CreateSagaStepAndOutboxMessage(sagaId, stepName, payload);

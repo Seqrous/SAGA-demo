@@ -28,6 +28,24 @@ public class PgSagaRepository(NpgsqlDataSource pgDataSource, TimeProvider timePr
         return sagaId;
     }
 
+    public async Task<JsonDocument> GetSagaInitPayload(Guid sagaId)
+    {
+        const string sql = "SELECT payload FROM orchestrator.SagaLog WHERE saga_id = $1";
+
+        await using var connection = await pgDataSource.OpenConnectionAsync();
+        await using var command = new NpgsqlCommand(sql, connection);
+        command.Parameters.AddRange(new NpgsqlParameter[]
+        {
+            new() { Value = sagaId, NpgsqlDbType = NpgsqlDbType.Uuid },
+        });
+        
+        var dbReader = await command.ExecuteReaderAsync();
+        if (!await dbReader.ReadAsync())
+            throw new InvalidOperationException("No SAGA found for ID {sagaId}");
+
+        return JsonDocument.Parse(dbReader.GetString(0));
+    }
+
     public async Task CreateSagaStepAndOutboxMessage(Guid sagaId, string stepName, JsonDocument payloadJson)
     {
         const string createStepSql = """
