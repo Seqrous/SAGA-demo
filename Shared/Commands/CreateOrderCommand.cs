@@ -1,5 +1,5 @@
 using System.Text.Json;
 
-namespace Orchestrator;
+namespace Shared.Commands;
 
 public record CreateOrderCommand(Guid SagaId, JsonDocument JsonDocument);

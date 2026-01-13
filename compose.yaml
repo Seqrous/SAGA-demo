@@ -40,3 +40,19 @@
       RMQ_VHOST: /
     ports:
       - "8080:8080"
+  
+  order-service:
+    image: order-service
+    build:
+      context: .
+      dockerfile: OrderService/Dockerfile
+    depends_on:
+      - postgres
+      - rabbitmq
+      - orchestrator
+    environment:
+      RMQ_HOST: rabbitmq
+      RMQ_USER: guest
+      RMQ_PASSWORD: guest
+      RMQ_PORT: 5672
+      RMQ_VHOST: /
